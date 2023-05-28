@@ -1,8 +1,8 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_shaders/flutter_shaders.dart';
+import 'package:mesh_gradient/counter.dart';
+import 'package:mesh_gradient/dithering_mask.dart';
+import 'package:mesh_gradient/threshold_map.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,8 +12,7 @@ void main() {
     systemNavigationBarDividerColor: Colors.transparent,
   ));
 
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
-      overlays: [SystemUiOverlay.top]);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   runApp(const MyApp());
 }
 
@@ -41,95 +40,58 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController controller;
+
+  late final Animation<double> curved =
+      CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+
+  AnimationStatus statusAtPause = AnimationStatus.forward;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..addListener(() {
+        if (controller.isCompleted) {
+          controller.reverse();
+        } else if (controller.isDismissed) {
+          controller.forward();
+        }
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
-      data: MediaQuery.of(context).removeViewPadding(),
-      child: const Scaffold(
-        body: MeshGradient(),
+    return GestureDetector(
+      onTap: () {
+        //if (controller.isAnimating) {
+        //  statusAtPause = controller.status;
+        //  return controller.stop(canceled: false);
+        //}
+        //if (statusAtPause == AnimationStatus.forward) {
+        //  controller.forward();
+        //} else {
+        //  controller.reverse();
+        //}
+      },
+      child: MediaQuery(
+        data: MediaQuery.of(context).removeViewPadding(),
+        child: AnimatedBuilder(
+          animation: controller,
+          builder: (context, child) {
+            return DitheringMask(
+              thresholdMap: ThresholdMap.twoByTwo,
+              colorPower: 64,
+              child: child!,
+            );
+          },
+          child: const Counter(title: 'counter'),
+        ),
       ),
     );
-  }
-}
-
-class MeshGradient extends StatefulWidget {
-  const MeshGradient({super.key});
-
-  @override
-  State<MeshGradient> createState() => _MeshGradientState();
-}
-
-class _MeshGradientState extends State<MeshGradient> {
-  final Future<FragmentProgram> futureFragment =
-      FragmentProgram.fromAsset('assets/shaders/mesh_gradient.frag');
-
-  @override
-  Widget build(BuildContext context) {
-    //return FutureBuilder(
-    //  future: futureFragment,
-    //  builder: (context, snap) {
-    //    if (snap.hasError) {
-    //      return Text('${snap.error}:\n${snap.stackTrace}');
-    //    }
-    //    if (!snap.hasData) {
-    //      return Container();
-    //    }
-    //    return CustomPaint(
-    //      painter: MeshGradientPainter(
-    //        shader: snap.requireData.fragmentShader(),
-    //      ),
-    //    );
-    //  },
-    //);
-    return ShaderBuilder(
-      assetKey: 'assets/shaders/mesh_gradient.frag',
-      (context, shader, child) {
-        return CustomPaint(
-          size: MediaQuery.sizeOf(context),
-          painter: MeshGradientPainter(shader: shader),
-        );
-      },
-    );
-  }
-}
-
-class MeshGradientPainter extends CustomPainter {
-  MeshGradientPainter({
-    required this.shader,
-  });
-
-  FragmentShader shader;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final List<Color> colors = [
-      Colors.pink,
-      Colors.blue,
-      Colors.orange,
-      Colors.green,
-    ];
-    shader.setFloat(0, size.height);
-    shader.setFloat(1, size.width);
-    int i = 2;
-    for (final Color color in colors) {
-      shader.setFloat(i++, color.red.toDouble() / 255 * color.opacity);
-      shader.setFloat(i++, color.green.toDouble() / 255 * color.opacity);
-      shader.setFloat(i++, color.blue.toDouble() / 255 * color.opacity);
-      shader.setFloat(i++, color.opacity);
-    }
-
-    final paint = Paint()..shader = shader;
-
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant MeshGradientPainter oldDelegate) {
-    // TODO: repaint on input changes.
-    return false;
   }
 }

@@ -21,3 +21,5 @@ flutter:
   uses-material-design: true
   shaders:
     - assets/shaders/mesh_gradient.frag
+    - assets/shaders/dither.frag
+    - assets/shaders/color_band.frag
