@@ -20,6 +20,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   shaders:
-    - assets/shaders/mesh_gradient.frag
-    - assets/shaders/dither.frag
-    - assets/shaders/color_band.frag
+    - packages/mesh_gradient/shaders/mesh_gradient.frag
+    - packages/mesh_gradient/shaders/dither.frag
+    - packages/mesh_gradient/shaders/color_band.frag
+    - packages/mesh_gradient/shaders/polar_mask.frag

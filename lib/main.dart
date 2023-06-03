@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mesh_gradient/counter.dart';
 import 'package:mesh_gradient/dithering_mask.dart';
+import 'package:mesh_gradient/mesh_gradient.dart';
 import 'package:mesh_gradient/threshold_map.dart';
 
 void main() {
@@ -57,9 +58,11 @@ class _MyHomePageState extends State<MyHomePage>
       vsync: this,
     )..addListener(() {
         if (controller.isCompleted) {
+          //statusAtPause = AnimationStatus.reverse;
           controller.reverse();
         } else if (controller.isDismissed) {
-          controller.forward();
+          statusAtPause = AnimationStatus.forward;
+          //controller.forward();
         }
       });
   }
@@ -68,15 +71,15 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        //if (controller.isAnimating) {
-        //  statusAtPause = controller.status;
-        //  return controller.stop(canceled: false);
-        //}
-        //if (statusAtPause == AnimationStatus.forward) {
-        //  controller.forward();
-        //} else {
-        //  controller.reverse();
-        //}
+        if (controller.isAnimating) {
+          statusAtPause = controller.status;
+          return controller.stop(canceled: false);
+        }
+        if (statusAtPause == AnimationStatus.forward) {
+          controller.forward();
+        } else {
+          controller.reverse();
+        }
       },
       child: MediaQuery(
         data: MediaQuery.of(context).removeViewPadding(),
@@ -85,11 +88,11 @@ class _MyHomePageState extends State<MyHomePage>
           builder: (context, child) {
             return DitheringMask(
               thresholdMap: ThresholdMap.twoByTwo,
-              colorPower: 64,
+              colorPower: (controller.value * 15).floor() + 1,
               child: child!,
             );
           },
-          child: const Counter(title: 'counter'),
+          child: MeshGradient.cmyk(),
         ),
       ),
     );

@@ -18,7 +18,7 @@ sealed class ThresholdMap {
         .map(
           (row) => row
               .map(
-                (value) => (value * normalize / maxValue.toDouble()).round(),
+                (value) => (value * normalize / maxValue.toDouble()).floor(),
               )
               .toList(),
         )
@@ -34,8 +34,6 @@ sealed class ThresholdMap {
       }).toList(),
     );
   }
-
-
 
   Future<ui.Image> toImage() async {
     final Completer<ui.Image> completer = Completer();
@@ -61,7 +59,7 @@ class _TwoByTwoThresholdMap extends ThresholdMap {
   _TwoByTwoThresholdMap._()
       : super(
           [
-            [0, 2],
+            [1, 2],
             [3, 1],
           ],
         );
@@ -71,7 +69,7 @@ class _FourByFourThresholdMap extends ThresholdMap {
   _FourByFourThresholdMap._()
       : super(
           [
-            [0, 8, 2, 10],
+            [1, 8, 2, 10],
             [12, 4, 14, 6],
             [3, 11, 1, 9],
             [15, 7, 13, 5],
@@ -82,11 +80,11 @@ class _FourByFourThresholdMap extends ThresholdMap {
 class _Identity extends ThresholdMap {
   _Identity._()
       : super(
-    [
-      [16, 0, 0, 0],
-      [0, 16, 0, 0],
-      [0, 0, 16, 0],
-      [0, 0, 0, 16],
-    ],
-  );
+          [
+            [16, 0, 0, 0],
+            [0, 16, 0, 0],
+            [0, 0, 16, 0],
+            [0, 0, 0, 16],
+          ],
+        );
 }

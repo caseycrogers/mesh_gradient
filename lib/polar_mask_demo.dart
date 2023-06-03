@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_shaders/flutter_shaders.dart';
-import 'package:mesh_gradient/mesh_gradient.dart';
+import 'package:mesh_gradient/counter.dart';
+import 'package:mesh_gradient/polar_mask.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,11 +54,9 @@ class _MyHomePageState extends State<MyHomePage>
     controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
-    )
-      ..forward()
-      ..addListener(() {
+    )..addListener(() {
         if (controller.isCompleted) {
-          controller.reverse();
+          //controller.reverse();
         } else if (controller.isDismissed) {
           controller.forward();
         }
@@ -67,9 +65,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: GestureDetector(
+    return Center(
+      child: GestureDetector(
         onTap: () {
           if (controller.isAnimating) {
             statusAtPause = controller.status;
@@ -83,62 +80,51 @@ class _MyHomePageState extends State<MyHomePage>
         },
         child: MediaQuery(
           data: MediaQuery.of(context).removeViewPadding(),
-          child: AnimatedBuilder(
-            animation: controller,
-            builder: (context, child) {
-              return ColorBandingMask(
-                colorPower: (curved.value * 32).round(),
-                child: child!,
-              );
-            },
-            child: const MeshGradient(
-              colors: [
-                Colors.cyan,
-                Colors.pink,
-                Colors.yellow,
-                Colors.black,
-              ],
+          child: SizedBox.expand(
+            child: AnimatedBuilder(
+              animation: controller,
+              builder: (context, child) {
+                return PolarMask(
+                  progress: controller.value,
+                  child: child!,
+                );
+              },
+              child: Container(
+                color: Colors.white,
+                child: const Counter(title: 'Counter'),
+                //child: ShaderMask(
+                //  shaderCallback: (rect) {
+                //    return const LinearGradient(
+                //      begin: Alignment.bottomCenter,
+                //      end: Alignment.topCenter,
+                //      colors: [Colors.black, Colors.transparent],
+                //    ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                //  },
+                //  blendMode: BlendMode.dstIn,
+                //  child: const DecoratedBox(
+                //    decoration: BoxDecoration(
+                //      gradient: LinearGradient(
+                //        begin: Alignment.centerLeft,
+                //        end: Alignment.centerRight,
+                //        colors: [
+                //          Colors.blue,
+                //          Colors.purple,
+                //          Colors.red,
+                //          Colors.orange,
+                //          Colors.yellow,
+                //          Colors.green,
+                //          Colors.teal,
+                //          Colors.blue,
+                //        ],
+                //      ),
+                //    ),
+                //  ),
+                //),
+              ),
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class ColorBandingMask extends StatelessWidget {
-  const ColorBandingMask({
-    super.key,
-    required this.colorPower,
-    required this.child,
-  });
-
-  final int colorPower;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return ShaderBuilder(
-      assetKey: 'packages/mesh_gradient/shaders/color_band.frag',
-      child: child,
-      (context, shader, child) {
-        return AnimatedSampler(
-          child: child!,
-          (image, size, canvas) {
-            int i = 0;
-            shader.setFloat(i++, size.width);
-            shader.setFloat(i++, size.height);
-            shader.setFloat(i++, colorPower.toDouble());
-            shader.setImageSampler(0, image);
-            final Paint paint = Paint()..shader = shader;
-
-            canvas.drawRect(
-              Rect.fromLTWH(0, 0, size.width, size.height),
-              paint,
-            );
-          },
-        );
-      },
     );
   }
 }

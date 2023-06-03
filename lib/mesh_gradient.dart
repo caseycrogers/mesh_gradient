@@ -7,12 +7,23 @@ class MeshGradient extends StatelessWidget {
     required this.colors,
   });
 
+  factory MeshGradient.cmyk() {
+    return const MeshGradient(
+      colors: [
+        Colors.cyan,
+        Colors.pink,
+        Colors.yellow,
+        Colors.black,
+      ],
+    );
+  }
+
   final List<Color> colors;
 
   @override
   Widget build(BuildContext context) {
     return ShaderBuilder(
-      assetKey: 'assets/shaders/mesh_gradient.frag',
+      assetKey: 'packages/mesh_gradient/shaders/mesh_gradient.frag',
       (context, shader, child) {
         return CustomPaint(
           size: MediaQuery.sizeOf(context),

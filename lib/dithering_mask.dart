@@ -51,7 +51,7 @@ class _DitheringMaskState extends State<DitheringMask> {
           );
         }
         return ShaderBuilder(
-          assetKey: 'assets/shaders/dither.frag',
+          assetKey: 'packages/mesh_gradient/shaders/dither.frag',
           child: widget.child,
           (context, shader, child) {
             return AnimatedSampler(
@@ -78,4 +78,15 @@ class _DitheringMaskState extends State<DitheringMask> {
       },
     );
   }
+}
+
+Future<String> foo(int? i) async {
+  return switch (i) {
+    null => 'No message',
+    int i => (await asyncGetRecord(i)).$2,
+  };
+}
+
+Future<(int, String)> asyncGetRecord(int i) async {
+  return (0, 'asdf');
 }
