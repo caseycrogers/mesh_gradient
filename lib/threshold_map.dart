@@ -59,7 +59,7 @@ class _TwoByTwoThresholdMap extends ThresholdMap {
   _TwoByTwoThresholdMap._()
       : super(
           [
-            [1, 2],
+            [0, 2],
             [3, 1],
           ],
         );

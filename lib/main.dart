@@ -88,7 +88,8 @@ class _MyHomePageState extends State<MyHomePage>
           builder: (context, child) {
             return DitheringMask(
               thresholdMap: ThresholdMap.twoByTwo,
-              colorPower: (controller.value * 15).floor() + 1,
+              colorPower: 32,
+              //colorPower: (controller.value * 15).floor() + 1,
               child: child!,
             );
           },
